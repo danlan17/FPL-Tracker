@@ -37,5 +37,7 @@ public class Player {
 		this.eventPoints = eventPoints;
 	}
 	
-	
+	public String toString() {
+		return displayName;
+	}
 }

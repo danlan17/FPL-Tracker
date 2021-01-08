@@ -39,10 +39,12 @@ public class FPLService {
 			node = mapper.readTree(response.getBody());
 			
 			for (int i = 0; i < node.path("elements").size(); i++) {
+				
 				int id = node.path("elements").path(i).path("id").asInt();
-				String displayName = node.path("elements").path(i).path("web_name").toString().replaceAll("\"", "").toLowerCase();
+				String displayName = node.path("elements").path(i).path("web_name").toString().replaceAll("\"", "");
+				String normal = Normalizer.normalize(displayName.toLowerCase(), Normalizer.Form.NFKD).replaceAll("\\p{M}", "");
 				int eventPoints = node.path("elements").path(i).path("event_points").asInt();
-				String normal = Normalizer.normalize(displayName, Normalizer.Form.NFKD).replaceAll("\\p{M}", "");
+				
 				Player player = new Player(id, displayName, eventPoints);
 				allPlayers.put(normal, player);
 			}
@@ -64,7 +66,7 @@ public class FPLService {
 			
 			if (allPlayers.containsKey(input)) {
 				team.add(allPlayers.get(input));
-				System.out.println("Player " + team.size() + " added!");
+				System.out.println("Player " + team.size() + "(" + allPlayers.get(input) + ") added!");
 			}
 			else {
 				System.out.println("Player not found.");
