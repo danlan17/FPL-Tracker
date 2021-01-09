@@ -18,16 +18,31 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Component
 public class FPLService {
 
 	private static String BASE_URL = "https://fantasy.premierleague.com/api/";
 	private RestTemplate rest = new RestTemplate();
 	private ObjectMapper mapper = new ObjectMapper();
 	private JsonNode node;
-	private Scanner scanner = new Scanner(System.in);
+	private Map<String, Player> allPlayers;
 	
 	public Map<String, Player> getAllPlayers() {
+		return allPlayers;
+	}
+	
+	public FPLService() {
+		updatePlayers();
+	}
+	
+	public Player findPlayer(String displayName) {
+		
+		if (allPlayers.containsKey(displayName)) {
+			return allPlayers.get(displayName);
+		}
+		return null;
+	}
+	
+	public void updatePlayers() {
 		
 		String url = BASE_URL + "bootstrap-static/";
 		HttpEntity<String> entity = new HttpEntity<>("");
@@ -53,26 +68,7 @@ public class FPLService {
 			System.out.println(ex.getMessage());
 		}
 		
-		return allPlayers;
+		this.allPlayers = allPlayers;
 	}
 	
-	public List<Player> createTeam(Map<String, Player> allPlayers) {
-		
-		List<Player> team = new ArrayList<>();
-		
-		while (team.size() < 11) {
-			System.out.println("Enter player's full name: ");
-			String input = scanner.nextLine().toLowerCase();
-			
-			if (allPlayers.containsKey(input)) {
-				team.add(allPlayers.get(input));
-				System.out.println("Player " + team.size() + "(" + allPlayers.get(input) + ") added!");
-			}
-			else {
-				System.out.println("Player not found.");
-			}
-		}
-		
-		return team;
-	}
 }
