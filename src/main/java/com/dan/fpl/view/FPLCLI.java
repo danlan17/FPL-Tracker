@@ -7,43 +7,51 @@ import java.util.Map;
 import java.util.Scanner;
 
 import com.dan.fpl.models.Player;
+import com.dan.fpl.services.ConsoleService;
 import com.dan.fpl.services.FPLService;
 
 public class FPLCLI {
 	
-	private List<Player> userTeam;
-	private Map<String, ArrayList<Player>> otherTeams = new HashMap<>();
+	private static String[] MAIN_MENU = {"Manage Teams", "Matchups", "Save", "Load", "Exit"};
 	private FPLService service;
-	private Scanner scanner;
+	private ConsoleService console;
+	private List<Player> userTeam;
+	private String userTeamName;
+	private Map<String, List<Player>> teams;
+	private List<String> teamNames;
 	
-	public FPLCLI(FPLService service, Scanner scanner) {
+	public FPLCLI(FPLService service, ConsoleService console) {
 		this.service = service;
+		this.console = console;
 	}
 
 	public static void main(String[] args) {
-		FPLCLI cli = new FPLCLI(new FPLService(), new Scanner(System.in));
+		ConsoleService console = new ConsoleService(System.in, System.out);
+		FPLCLI cli = new FPLCLI(new FPLService(console), console);
 		cli.run();
 	}
 
-	public static void run() {
+	public void run() {
 		
-	}
-	
-	public List<Player> createTeam(List<Player> team) {
+		System.out.println("Welcome! What would you like to do?");
 		
-		while (team.size() < 11) {
-			System.out.println("Please enter player's display name as given in FPL: ");
-			String input = scanner.nextLine().toLowerCase();
-			Player player = service.findPlayer(input);
+		while (true) {
+			String mainOption = (String) console.getChoiceFromOptions(MAIN_MENU);
 			
-			if (player != null) {
-				team.add(player);
-				System.out.println(String.format("Player %d (%s) added!", team.size(), player));
+			if (mainOption.equals("Manage Teams")) {
+				service.manageTeams();
 			}
-			else {
-				System.out.println("Player not found.");
+			else if (mainOption.equals("Matchups")) {
+				service.matchups();
+			}
+			else if (mainOption.equals("Save")) {
+			}
+			else if (mainOption.equals("Load")) {
+			}
+			else if (mainOption.equals("Exit")){
+				System.out.println("Goodbye!");
+				System.exit(0);;
 			}
 		}
-		return team;
 	}
 }
