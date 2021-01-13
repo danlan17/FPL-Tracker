@@ -10,17 +10,17 @@ import org.junit.jupiter.api.Test;
 import com.dan.fpl.models.Player;
 
 class FPLServiceTest {
-
-	private FPLService service = new FPLService(new ConsoleService(System.in, System.out));
 	
 	@Test
 	void pullsAllPlayers() {
-		assertTrue(service.getAllPlayers().size() > 0);
+		FPLData data = new FPLData();
+		assertTrue(data.getAllPlayers().size() > 0);
 	}
 	
 	@Test
 	void playerSearch() {
-		Player player = service.findPlayer("ozil");
+		FPLData data = new FPLData();
+		Player player = data.findPlayer("ozil");
 		String actual = Normalizer.normalize(player.getDisplayName(), Normalizer.Form.NFKD).replaceAll("\\p{M}", "");
 		assertEquals(actual, "Ozil");
 	}

@@ -4,11 +4,13 @@ public class Player {
 
 	private int id;
 	private String displayName;
+	private String normalized;
 	private int eventPoints;
 	
-	public Player (int id, String displayName, int eventPoints) {
+	public Player (int id, String displayName, String normalized, int eventPoints) {
 		this.id = id;
 		this.displayName = displayName;
+		this.normalized = normalized;
 		this.eventPoints = eventPoints;
 	}
 
@@ -27,6 +29,14 @@ public class Player {
 
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
+	}
+	
+	public String getNormalized() {
+		return normalized;
+	}
+	
+	public void setNormalized(String normalized) {
+		this.normalized = normalized;
 	}
 
 	public int getEventPoints() {
