@@ -1,7 +1,11 @@
 package com.dan.fpl.services;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -56,20 +60,22 @@ public class FPLService {
 				this.userTeamName = name;
 			}
 		}
-		String manageOption = null;
-		
-		while (!manageOption.equals("Back")) {
-			manageOption = (String) console.getChoiceFromOptions(MANAGE_TEAMS_MENU);
+		else {
+			String manageOption = "";
 			
-			if (manageOption.equals("View Teams")) {
-				displayTeams();
-			}
-			else if (manageOption.equals("Add Member Team")) {
-				String name = createTeamName();
-				createTeam(name);
-			}
-			else if (manageOption.equals("Modify Teams")) {
-				modifyTeams();
+			while (!manageOption.equals("Back")) {
+				manageOption = (String) console.getChoiceFromOptions(MANAGE_TEAMS_MENU);
+				
+				if (manageOption.equals("View Teams")) {
+					displayTeams();
+				}
+				else if (manageOption.equals("Add Member Team")) {
+					String name = createTeamName();
+					createTeam(name);
+				}
+				else if (manageOption.equals("Modify Teams")) {
+					modifyTeams();
+				}
 			}
 		}
 	}
@@ -79,11 +85,11 @@ public class FPLService {
 		String name = null;
 		
 		while (name == null) {
-			System.out.println("Please enter a name for this team:\n");
+			System.out.println("Please enter a name for this team:");
 			String input = scanner.nextLine();
 			
 			if (this.teamNames.contains(input)) {
-				System.out.println("Team name already exists.");
+				System.out.println("\nTeam name already exists.\n");
 			}
 			else {
 				name = input;
@@ -111,19 +117,19 @@ public class FPLService {
 		
 		while (player == null) {
 			
-			System.out.println("Please enter player's display name as given in FPL:\n");
-			player = data.findPlayer(scanner.nextLine());
+			System.out.println("\nPlease enter player's display name as given in FPL:");
+			player = this.data.findPlayer(scanner.nextLine());
 			
 			if (player == null) {
-				System.out.println("Player not found.");
+				System.out.println("\nPlayer not found.");
 			}
 			else if (team.contains(player)) {
-				System.out.println("Player already in roster.");
+				System.out.println("\nPlayer already in roster.");
 				player = null;
 			}
 			else {
 				team.add(player);
-				System.out.println("Player added! Current team size is " + team.size() + ".");
+				System.out.println("\nPlayer added! Current team size is " + team.size() + ".");
 			}
 		}
 		return team;
@@ -132,10 +138,10 @@ public class FPLService {
 	private int getAverage() {
 		
 		int total = 0;
-		data.updatePlayers();
+		this.data.updatePlayers();
 
 		for (String name : this.teamNames) {
-			total += data.getTeamPoints(this.teams.get(name));
+			total += this.data.getTeamPoints(this.teams.get(name));
 		}
 		return total/this.teamNames.size();
 	}
@@ -147,7 +153,7 @@ public class FPLService {
 		while (newTeam.size() < 11) {
 			newTeam = addPlayer(newTeam);
 		}
-		System.out.println("New team created for " + name + "!");
+		System.out.println("\nNew team created for " + name + "!");
 		this.teams.put(name, newTeam);
 		return newTeam;  
 	}
@@ -162,13 +168,13 @@ public class FPLService {
 		
 			System.out.println("Which player would you like to swap out?");
 			Player playerOut = (Player) console.getChoiceFromOptions(temp);
-			System.out.println("Taking out " + playerOut.getDisplayName());
+			System.out.println("Taking out " + playerOut.getDisplayName() + "\n");
 			team.remove(playerOut);
 			
 			System.out.println("Which player would you like to add?");
 			team = addPlayer(team);
 			
-			System.out.println("Would you like to swap another player?");
+			System.out.println("\nWould you like to swap another player?");
 			String another = (String) console.getChoiceFromOptions(YES_NO);
 			
 			if (another.equals("No")) {
@@ -195,7 +201,7 @@ public class FPLService {
 	
 	public void matchups() {
 		
-		String matchupOption = null;
+		String matchupOption = "";
 		
 		while (!matchupOption.equals("Back")) {
 			matchupOption = (String) console.getChoiceFromOptions(MATCHUP_MENU);
@@ -210,7 +216,7 @@ public class FPLService {
 	
 	private void createMatchups() {
 		
-		if (this.teams.size() < 2) {
+		if (this.teams == null || this.teams.size() < 2) {
 			System.out.println("Not enough teams to create a matchup!");
 		}
 		else {
@@ -227,7 +233,7 @@ public class FPLService {
 				matchups.add(team);
 				temp.remove(team);
 				displayMatchupPreview(matchups);
-				System.out.println("\nTeam added!\n");
+				System.out.println("\n\nTeam added!\n");
 			}
 			System.out.println("Matchup finalized!");
 		}
@@ -236,17 +242,101 @@ public class FPLService {
 	private void displayMatchupPreview(List<String> preview) {
 		
 		System.out.println("\tCURRENT MATCHUP");
-		System.out.println("-----------------------");
+		System.out.println("-------------------------------");
 		
 		for (int i = 0; i < preview.size(); i++) {
-			
 			if (i % 2 == 0) {
-				System.out.println(preview.get(i) + "\tVS.");
+				System.out.print(preview.get(i) + "\tVS\t");
 			}
 			else {
-				System.out.print("\t" + preview.get(i));
+				System.out.print(preview.get(i));
 			}
 		}
 	}
 	
+	public void save() {
+		
+		if (this.userTeam != null) {
+			File saveTeams = new File("save-teams.txt");
+			
+			try (PrintWriter dataTeam = new PrintWriter(saveTeams)) {
+				dataTeam.println(formatSave(this.userTeamName, this.userTeam));
+				
+				for (Map.Entry<String, Set<Player>> team : this.teams.entrySet()) {
+					if (team.getKey() != this.userTeamName) {
+						dataTeam.println(formatSave(team.getKey(), team.getValue()));
+					}
+				}
+			} 
+			catch (FileNotFoundException ex) {
+				System.out.println("Team save file could not be opened.");
+			}
+			
+			if (this.savedMatchups != null) {
+				File saveMatchups = new File("save-matchups.txt");
+				
+				try (PrintWriter dataMatchups = new PrintWriter(saveMatchups)) {
+					String[] formatted = new String[this.savedMatchups.size()];
+					
+					for (int i = 0; i < this.savedMatchups.size(); i++) {
+						formatted[i] = this.savedMatchups.get(i);
+					}
+					dataMatchups.println(String.join("|", formatted));
+				}
+				catch (FileNotFoundException ex) {
+					System.out.println("Matchup save file could not be opened.");
+				}
+			}
+			System.out.println("Save successful!");
+		}
+		else {
+			System.out.println("You do not have a team!");
+		}
+		
+	}
+	
+	private String formatSave(String teamName, Set<Player> team) {
+		
+		String[] formatted = new String[team.size() + 1];
+		formatted[0] = teamName;
+		int i = 1;
+		
+		for (Player player : team) {
+			formatted[i++] = player.getNormalized();
+		}
+		return String.join("|", formatted);
+	}
+	
+	public void load() {
+		
+		File teamsFile = new File("save-teams.txt");
+		
+		try (Scanner read = new Scanner(teamsFile)) {
+			this.teams = new HashMap<>();
+			this.teamNames = new HashSet<>();
+			boolean firstLine = true;
+			
+			while (read.hasNextLine()) {
+				String[] teamStr = read.nextLine().split("\\|");
+				Set<Player> team = new HashSet<>();
+				
+				for (int i = 1; i < teamStr.length; i++) {
+					Player player = this.data.getAllPlayers().get(teamStr[i]);
+					team.add(player);
+				}
+				this.teams.put(teamStr[0], team);
+				this.teamNames.add(teamStr[0]);
+				
+				if (firstLine) {
+					this.userTeamName = teamStr[0];
+					this.userTeam = team;
+					firstLine = false;
+				}
+			}
+		}
+		catch (FileNotFoundException ex) {
+			System.out.println("You don't have any teams saved!");
+		}
+		System.out.println("Team loaded!");
+	}
 }

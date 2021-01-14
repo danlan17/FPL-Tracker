@@ -1,0 +1,2 @@
+test team 1|kane|vardy|chilwell|de bruyne|sterling|fernandes|grealish|rashford|calvert-lewin|salah|mane
+test team 2|richarlison|mahrez|bamford|werner|jota|martial|soucek|maupay|ings|aguero|jimenez

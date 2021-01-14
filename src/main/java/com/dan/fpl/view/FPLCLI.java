@@ -1,5 +1,7 @@
 package com.dan.fpl.view;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,8 +47,10 @@ public class FPLCLI {
 				service.matchups();
 			}
 			else if (mainOption.equals("Save")) {
+				service.save();
 			}
 			else if (mainOption.equals("Load")) {
+				service.load();
 			}
 			else if (mainOption.equals("Exit")){
 				System.out.println("Goodbye!");
