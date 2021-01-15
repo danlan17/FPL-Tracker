@@ -77,7 +77,7 @@ public class FPLData {
 		int teamPoints = 0;
 		
 		for (Player player : team) {
-			teamPoints += this.allPlayers.get(player.getNormalized()).getEventPoints();
+			teamPoints += player.getEventPoints();
 		}
 		return teamPoints;
 	}

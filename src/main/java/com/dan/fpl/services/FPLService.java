@@ -28,7 +28,7 @@ public class FPLService {
 
 	private static String[] MANAGE_TEAMS_MENU = {"View Teams", "Add Member Team", "Modify Teams", "Back"};
 	private static String[] MODIFY_MENU = {"Swap Players", "Create New Team", "Back"};
-	private static String[] MATCHUP_MENU = {"View Current Matchup", "Set Matchup", "Back"};
+	private static String[] MATCHUP_MENU = {"View Live Matchup", "Set Matchup", "Back"};
 	private static String[] YES_NO = {"Yes", "No"};
 	private FPLData data = new FPLData();
 	private ConsoleService console;
@@ -206,7 +206,8 @@ public class FPLService {
 		while (!matchupOption.equals("Back")) {
 			matchupOption = (String) console.getChoiceFromOptions(MATCHUP_MENU);
 			
-			if (matchupOption.equals("View Matchup")) {
+			if (matchupOption.equals("View Live Matchup")) {
+				viewLiveMatchups();
 			}
 			else if (matchupOption.equals("Set Matchup")) {
 				createMatchups();
@@ -236,6 +237,7 @@ public class FPLService {
 				System.out.println("\n\nTeam added!\n");
 			}
 			System.out.println("Matchup finalized!");
+			this.savedMatchups = matchups;
 		}
 	}
 	
@@ -250,6 +252,27 @@ public class FPLService {
 			}
 			else {
 				System.out.print(preview.get(i));
+			}
+		}
+	}
+	
+	private void viewLiveMatchups() {
+		
+		if (this.savedMatchups == null) {
+			System.out.println("Matchups have not been set!");
+		}
+		else {
+			this.data.updatePlayers();
+			System.out.println("\n\tLIVE MATCHUPS");
+			System.out.println("-------------------------------");
+			
+			for (int i = 0; i < this.savedMatchups.size(); i += 2) {
+				String team1 = this.savedMatchups.get(i);
+				String team2 = this.savedMatchups.get(i+1);
+				int team1Score = this.data.getTeamPoints(this.teams.get(team1));
+				int team2Score = this.data.getTeamPoints(this.teams.get(team2));
+				String formatted = String.format("%s\t%d  VS  %d\t%s", team1, team1Score, team2Score, team2);
+				System.out.println(formatted);
 			}
 		}
 	}
@@ -311,13 +334,13 @@ public class FPLService {
 		
 		File teamsFile = new File("save-teams.txt");
 		
-		try (Scanner read = new Scanner(teamsFile)) {
+		try (Scanner readTeams = new Scanner(teamsFile)) {
 			this.teams = new HashMap<>();
 			this.teamNames = new HashSet<>();
 			boolean firstLine = true;
 			
-			while (read.hasNextLine()) {
-				String[] teamStr = read.nextLine().split("\\|");
+			while (readTeams.hasNextLine()) {
+				String[] teamStr = readTeams.nextLine().split("\\|");
 				Set<Player> team = new HashSet<>();
 				
 				for (int i = 1; i < teamStr.length; i++) {
@@ -337,6 +360,21 @@ public class FPLService {
 		catch (FileNotFoundException ex) {
 			System.out.println("You don't have any teams saved!");
 		}
-		System.out.println("Team loaded!");
+		File matchupsFile = new File("save-matchups.txt");
+		
+		if (matchupsFile.exists()) {
+			
+			try (Scanner readMatchups = new Scanner(matchupsFile)) {
+				
+				if (readMatchups.hasNextLine()) {
+					String[] matchupStr = readMatchups.nextLine().split("\\|");
+					this.savedMatchups = Arrays.asList(matchupStr);
+				}
+			}
+			catch (FileNotFoundException ex) {
+				System.out.println("Matchup save file could not be opened.");
+			}
+		}
+		System.out.println("Save loaded!");
 	}
 }

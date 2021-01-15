@@ -35,7 +35,7 @@ public class FPLCLI {
 
 	public void run() {
 		
-		System.out.println("Welcome! What would you like to do?");
+		System.out.println("\nWelcome! What would you like to do?");
 		
 		while (true) {
 			String mainOption = (String) console.getChoiceFromOptions(MAIN_MENU);
